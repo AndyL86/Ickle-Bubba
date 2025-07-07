@@ -1,0 +1,109 @@
+<div class='membershipWrapper thank-you'>
+  <div class="formWrapper">
+      <div class='formHeader'>
+        <h3>{% if section.settings.logoImage != blank %}{{ section.settings.logoImage | image_url: width: 1920 | image_tag: preload: true, width: nil, height: nil }}{% else %}{{ section.settings.logoText }}{% endif %}</h3>
+        <div class="thankyou-success-message">{{ section.settings.successMessage }}</div>
+      </div>
+      <div class='thankyou-content formStyle'>
+        <p class='login-text-thank'>{{ section.settings.description }}</p>
+        {% if customer %}
+          <a href='{{ section.settings.buttonUrl }}'>{{ section.settings.buttonText }}</a>
+        {% else %}
+          <a href='/account'>LOG IN</a>
+        {% endif %}
+        <p class='login-text-thank2'>{{ section.settings.description2 }}</p>
+        {% for block in section.blocks %}
+          <p class='discount-badges'><img src='{{ block.settings.blockImage | img_url:'1920x'}}' loading="eager" fetchpriority="high"><span>{{ block.settings.blockTitle }}</span></p> 
+        {% endfor %}
+        <p class='login-text-thank' style='margin-top:15px;'>{{ section.settings.message }}</p>
+      </div>  
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "Thankyou Form",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logoImage",
+      "label": "Logo Image"
+    },
+    {
+      "type": "text",
+      "id": "logoText",
+      "label": "Logo Text"
+    },
+    {
+      "type": "richtext",
+      "id": "successMessage",
+      "label": "Success Message"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "text",
+      "id": "description2",
+      "label": "Description"
+    },
+    {
+      "type": "text",
+      "id": "message",
+      "label": "Message"
+    },
+    {
+      "type": "header",
+      "content": "CTA Button (When Logged In)"
+    },
+    {
+      "type": "text",
+      "id": "buttonText",
+      "label": "Button Text",
+      "default": "Browse Products"
+    },
+    {
+      "type": "url",
+      "id": "buttonUrl",
+      "label": "Button URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_text_block",
+      "name": "Image and Text Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "blockImage",
+          "label": "Block Image"
+        },
+        {
+          "type": "text",
+          "id": "blockTitle",
+          "label": "Block Title"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Thankyou Form",
+      "category": "Custom",
+      "blocks": [
+        {
+          "type": "image_text_block",
+          "settings": {
+            "blockImage": "shopify:\/\/shop_images\/default-image.jpg",
+            "blockTitle": "Welcome"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

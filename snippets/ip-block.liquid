@@ -1,0 +1,10 @@
+<script>
+  const blockedIPs = ["90.218.182.216","51.89.173.123"]; // Add your blocked IPs here
+  fetch("https://api.ipify.org?format=json")
+    .then((response) => response.json())
+    .then((data) => {
+      if (blockedIPs.includes(data.ip)) {
+        window.location.href = "https://www.google.com"; // Redirect URL
+      }
+    });
+</script>

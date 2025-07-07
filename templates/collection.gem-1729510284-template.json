@@ -1,0 +1,103 @@
+{
+  "order": [
+    "collection-header",
+    "main-collection",
+    "55bca77b-c9e3-4377-8ccd-0a76003c7699",
+    "recently-viewed",
+    "3da79469-38f8-4a6f-abb4-60843e5cfdbf"
+  ],
+  "sections": {
+    "3da79469-38f8-4a6f-abb4-60843e5cfdbf": {
+      "block_order": [
+        "template--18306268954908__3da79469-38f8-4a6f-abb4-60843e5cfdbf-16805168666a02e21c-1"
+      ],
+      "blocks": {
+        "template--18306268954908__3da79469-38f8-4a6f-abb4-60843e5cfdbf-16805168666a02e21c-1": {
+          "settings": {
+            "alignment": "center",
+            "code": "<!-- EXPONEA start -->\n{% if collection %}\n<script type=\"text\/javascript\">\n    exponea.track('view_category',{\n        category_name: {{ collection.title | json }},\n        category_id: {{ collection.id | json }}\n    });\n<\/script>\n{% endif %}\n<!-- EXPONEA end -->",
+            "width": "100%"
+          },
+          "type": "liquid"
+        }
+      },
+      "disabled": true,
+      "settings": {
+        "full_width": false,
+        "lazyload_images": true,
+        "space_around": true
+      },
+      "type": "advanced-content"
+    },
+    "55bca77b-c9e3-4377-8ccd-0a76003c7699": {
+      "block_order": [
+        "143d5989-57f6-47ac-a03f-87579e6ec468"
+      ],
+      "blocks": {
+        "143d5989-57f6-47ac-a03f-87579e6ec468": {
+          "settings": {
+          },
+          "type": "shopify:\/\/apps\/boost-ai-search-discovery\/blocks\/filter-product-list-ssr\/7fc998ae-a150-4367-bab8-505d8a4503f7"
+        }
+      },
+      "custom_css": [
+
+      ],
+      "settings": {
+        "full_width": false,
+        "space_around": false
+      },
+      "type": "apps"
+    },
+    "collection-header": {
+      "custom_css": [
+
+      ],
+      "settings": {
+        "collection_image_enable": false,
+        "dynamic_collections_title": "",
+        "enable": true,
+        "enable_dynamic_collections": true,
+        "parallax": false,
+        "parallax_direction": "left"
+      },
+      "type": "collection-header"
+    },
+    "main-collection": {
+      "block_order": [
+        "collection_description",
+        "product_grid"
+      ],
+      "blocks": {
+        "collection_description": {
+          "settings": {
+          },
+          "type": "collection_description"
+        },
+        "product_grid": {
+          "settings": {
+            "grid_style": "large"
+          },
+          "type": "product_grid"
+        }
+      },
+      "custom_css": [
+        "@media only screen and (min-width: 769px) {.collection-content {padding-top: 0px; margin-top: 0px; }}"
+      ],
+      "disabled": true,
+      "settings": {
+        "collapse_filters": true,
+        "enable_color_swatches": true,
+        "enable_sidebar": true,
+        "enable_sort": true
+      },
+      "type": "main-collection"
+    },
+    "recently-viewed": {
+      "disabled": true,
+      "settings": {
+      },
+      "type": "recently-viewed"
+    }
+  }
+}

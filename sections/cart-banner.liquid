@@ -1,0 +1,39 @@
+<div>
+  <div class="cartBanner">
+    {% if section.settings.guestBanner != blank %}<a class="guestBanner" href="{{ section.settings.guestBannerLink }}"><img src='{{ section.settings.guestBanner | img_url:'1920x'}}'></a>{% endif %}
+    {% if section.settings.companyBanner != blank %}<a class="bubbleBanner" href="{{ section.settings.bubbleBannerLink }}"><img src='{{ section.settings.companyBanner | img_url:'1920x'}}'></a>{% endif %}
+  </div>
+</div>
+{% schema %}
+  {
+    "name": "Cart Banner",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id":"guestBanner",
+        "label": "Guest User Banner"
+      },
+      {
+        "type": "url",
+        "id":"guestBannerLink",
+        "label": "Guest Banner Link"
+      },
+      {
+        "type": "image_picker",
+        "id":"companyBanner",
+        "label": "Bubble User Banner"
+      },
+      {
+        "type": "url",
+        "id":"bubbleBannerLink",
+        "label": "Bubble Banner Link"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Cart Banner",
+        "category":"section"
+      }
+    ]
+  }
+{% endschema %}

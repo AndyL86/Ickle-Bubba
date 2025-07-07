@@ -1,0 +1,37 @@
+{% assign productData = product %}
+{% if productData %}
+ {% liquid
+   assign triggerId = productData.selected_or_first_available_variant.id
+   assign handle = productData.handle
+   assign productId = productData.id
+   assign blockId = block.id
+ %}
+ <div id="qbk-bundle-offer-{{ productId }}-{{ blockId }}"></div>
+ <qbk-inject-offer
+   mount-id="qbk-bundle-offer-{{ productId }}-{{ blockId }}"
+   handle="{{ handle }}"
+   section-id="{{ section.id }}"
+   trigger-id="{{ triggerId }}"
+   product-id="{{ productId }}"
+   type="bundle"
+ >
+ </qbk-inject-offer>
+{% endif %}
+
+<style>
+.qbk-offer-box__header{
+  text-align:center;
+}
+.qbk-description{
+  opacity: 100;
+}
+.qbk-bundle__total{
+  padding-top:10px;
+}
+.qbk-offer{
+  margin-bottom: 0px;
+}
+.qbk-bundle__offers--original .qbk-bundle__plus-icon{
+  margin: 0 auto 0px;
+}
+</style>

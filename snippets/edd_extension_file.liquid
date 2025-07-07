@@ -1,0 +1,227 @@
+{% assign custom = shop.metafields.deliveryEstimation.Settings %}
+{% assign is_install = custom.is_install %}
+
+<!-- set product date -->
+{% assign edd_options = custom.edd_options %}
+{% assign edd_plan_info = custom.plan_info %}
+{% assign is_enable = edd_options.is_enabled %}
+{% assign edd_on_home_page = edd_options.edd_on_home_page %}
+{% assign message = edd_options.message %}
+{% assign cutoff_time = edd_options.cutoff_time %}
+{% assign off_day = edd_options.off_day %}
+{% assign msg_preview = edd_options.msg_preview %}
+{% assign display_on_other_page = edd_options.display_on_other_page %}
+{% assign date_format = edd_options.date_format %}
+{% assign cutofftime_enable = edd_options.cutofftime_enable %}
+{% assign detail_page_class = edd_options.detail_page_class %}
+{% assign additional_script = edd_options.additional_script %}
+{% assign delivery_icon = edd_options.delivery_icon %}
+{% assign date_option = edd_options.date_option %}
+{% assign is_all_products = edd_options.is_all_products %}
+{% assign custom_cart_label = edd_options.custom_cart_label %}
+{% assign custom_date_format = edd_options.custom_date_format %}
+{% assign countdown_formate = edd_options.countdown_formate %}
+{% assign cart_msg_apperance = edd_options.cart_msg_apperance %}
+{% assign trial_active = edd_options.trial_active %}
+{% assign trial_end_date = edd_options.trial_end_date %}
+{% assign random_string = custom.random_string %}
+{% assign edd_for_customer_or_admin = edd_options.edd_for_customer_or_admin %}
+{% if edd_options.edd_for_customer_or_admin == blank %}
+  {% assign edd_for_customer_or_admin = 'admin' %}
+{% endif %}
+<!-- set product date -->
+
+{% assign plan_info = custom.plan_info %}
+{% assign is_active = plan_info.is_active %}
+{% assign plan = plan_info.plan %}
+
+{% if template contains 'product' %}
+  {% assign available = product.available %}
+  {% assign product_id = product.id %}
+  {% assign product_handle = product.handle %}
+  {% assign product_tag = product.tags %}
+  {% assign product_type = product.type %}
+  {% assign product_vendor = product.vendor %}
+  {% assign collection = collections %}
+  {% assign tagCount = 0 %}
+  {% assign collectionCount = 0 %}
+
+  <div class='sb_info_from_theme_ext metafield_update' style='display:none'>
+    <div class='sb_store_date'>{{ "now" | date: "%b %d, %Y %H:%M" }}</div>
+    <div>Product available :
+      <span class='product_available'>{{ available }}</span>
+    </div>
+    <div>Product Id :
+      <span class='product_id'>{{ product_id }}</span>
+    </div>
+    <div>Product Handle :
+      <span class='product_handle'>{{ product_handle }}</span>
+    </div>
+    <div>Product Vendor :
+      <span class='product_vendor'>{{ product_vendor }}</span>
+    </div>
+    <div>Product Type :
+      <span class='product_type'>{{ product_type }}</span>
+    </div>
+    <div>Product Tag :
+      {% for getproduct_tag in product_tag %}
+        <div>
+          {{ tagCount }} :
+          <span class='product_tag product_tag_{{tagCount}}'>{{ getproduct_tag }}</span>
+          {% assign tagCount = tagCount | plus: 1 %}
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+{% endif %}
+
+<!-- cart calendar data -->
+{% assign edd_customer_option = custom.edd_customer_option %}
+{% assign c_min_day = edd_customer_option.min_day %}
+{% assign c_max_day = edd_customer_option.max_day %}
+{% assign c_calender_alignment = edd_customer_option.calender_alignment %}
+{% assign c_cart_calendar_heading = edd_customer_option.cart_calendar_heading %}
+{% assign c_cart_calendar_err_msg = edd_customer_option.cart_calendar_err_msg %}
+{% assign c_order_delivery_date_label = edd_customer_option.order_delivery_date_label %}
+{% assign c_order_delivery_day_label = edd_customer_option.order_delivery_day_label %}
+{% assign c_weekday_translation = edd_customer_option.weekday_translation %}
+{% assign c_month_translation = edd_customer_option.month_translation %}
+{% assign c_off_day = edd_customer_option.off_day %}
+{% assign c_date_format = edd_customer_option.date_format %}
+{% assign c_holidays = edd_customer_option.c_holidays %}
+<!-- cart calendar data -->
+
+
+<!-- check collection page -->
+{%- assign is_collection_page = '0' -%}
+  {% if template contains 'collection' %}
+{%- assign is_collection_page = '1' -%}
+{% endif %}
+
+  <script defer> var check_theme_extention = "theme_extension";
+  if(window.location.href.includes('sb_clear_coockie=')){
+    document.cookie = "edd_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  }
+
+  var edd_is_collection_page = `{{ is_collection_page }}`;
+  console.log('theme extension')
+  if(typeof check_edd_data_from_liquid !== 'undefined'){
+  
+  }else{
+  check_edd_data_from_liquid = "0"; 
+  }
+
+  var edd_for_customer_or_admin = edd_options.edd_for_customer_or_admin;
+  var responseData_ode = {  
+  "is_active":edd_plan_info.is_active,
+  "edd_plan_info":edd_plan_info,
+  "edd_options": edd_options, 
+  //"is_install":edd_is_install,
+  "is_enable": edd_options.is_enabled,
+  "message":edd_options.message,
+  "edd_logic":'new'  
+  }
+  //console.log('admin_responseData_ode');
+  //console.log(responseData_ode);
+  
+  //var customer_responseData_ode = edd_customer_option
+  //console.log('edd_customer_option');
+  //console.log(customer_responseData_ode)
+     
+  var edd_sb_store_real_time =  `{{ "now" | date: "%Y/%m/%d %H:%M" }}`;
+</script>
+
+
+{%- assign templateBase = template -%}
+  {%- if templateBase == 'cart' -%}
+
+  {% comment %}
+  <script src='https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/edd-proxy/main/edd_update_msg_on_cart.js?04-01-2023_new' defer ></script>
+  {% endcomment %}{% if edd_for_customer_or_admin == "customer" %}
+    <link href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js" defer></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js" defer></script>
+    <script src='https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/edd-proxy/main/edd_customer.js?update_19-05-22' defer></script>
+
+    <style>
+      .ui-datepicker table {
+        background: #fff;
+      }
+      .input-group-btn,
+      .order_delivery_date,
+      .order-calendar-button-click {
+        cursor: pointer;
+      }
+      .order_delivery_date {
+        padding: 6px 4px 3px;
+        border: 1px solid #ccc;
+        background-color: #eee;
+      }
+      .calendar_icon {
+        position: absolute;
+        height: 20px;
+        right: 6px;
+        top: 2px;
+        opacity: 0.7;
+        cursor: pointer;
+        border-left: 1px solid #eee;
+        background: #fff;
+        padding: 0;
+      }
+      .calendar_icon img {
+        width: 20px;
+      }
+      .calendar_input_wrap {
+        position: relative;
+        display: inline-block;
+      }
+    </style>
+  {%- endif -%}
+
+{%- else -%}
+  {% assign add_edd_script = 1 %}
+  {% if templateBase == 'index' %}
+    {% if edd_on_home_page == 1 or edd_on_home_page == '1' %}
+      {% assign add_edd_script = 1 %}
+    {% else %}
+      {% assign add_edd_script = 0 %}
+    {% endif %}
+  {% endif %}
+
+
+  {% if edd_for_customer_or_admin == "admin" %}
+    <script src="https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/edd-proxy/main/edd.js?19-10-23" defer></script>
+    <!-- <script src="https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/edd-proxy/main/edd_admin_new.js?19-10-23" defer></script> -->
+    <script src="{{ 'edd_admin_new.js' | asset_url }}" defer="defer"></script>
+
+    <script>
+      var loadelementScriptUsingExtension = function(url, callback) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        if (script.readyState) {
+          script.onreadystatechange = function() {
+            if (script.readyState == 'loaded' || script.readyState == 'complete') {
+              script.onreadystatechange = null;
+              callback();
+            }
+          };
+        } else {
+          script.onload = function() {
+            callback();
+          };
+        } script.src = url;
+        document.getElementsByTagName('head')[0].appendChild(script);
+      };
+      adress_url = window.location.href;
+      if (adress_url.includes("sb_picker")) {
+        let edd_queryString = (Math.random() + 1).toString(36).substring(7);
+        loadelementScriptUsingExtension('https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/edd-proxy/main/element_picker_for_change_message_position.js?' + edd_queryString, function() {})
+
+      }
+    </script>
+
+  {%- endif -%}
+{%- endif -%}
+
+{% assign shop_url = shop.url %}

@@ -1,0 +1,19 @@
+{
+  "sections": {
+    "1729582842g1fok3kg": {
+      "type": "gem-page-default-product",
+      "settings": {}
+    },
+    "17310779211d04a798": {
+      "type": "apps",
+      "settings": {
+        "full_width": false,
+        "space_around": true
+      }
+    }
+  },
+  "order": [
+    "1729582842g1fok3kg",
+    "17310779211d04a798"
+  ]
+}

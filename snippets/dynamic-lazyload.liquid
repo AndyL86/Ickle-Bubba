@@ -1,0 +1,31 @@
+<script>
+  
+(function() {
+    try {
+        let imgCount = 0;
+
+        // Mutation observer callback function
+        const handleMutations = (mutationsList) => {
+            for (let mutation of mutationsList) {
+                if (mutation.addedNodes) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1 && node.tagName === 'IMG') {
+                            if (imgCount++ > 5) {
+                                node.setAttribute('loading', 'lazy');
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
+        // Create and initiate the mutation observer
+        const observer = new MutationObserver(handleMutations);
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    } catch (error) {
+        console.error('Error with the lazy-loading script:', error);
+    }
+})();
+
+</script>

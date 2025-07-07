@@ -1,0 +1,115 @@
+<script>
+const TYPE_BLOCKED = "text/blocked";
+const PROCESSED_ATTRIBUTE = "blocked"
+const IS_DEV = false;
+
+const logger = {
+  log: (...args) => {
+    if (IS_DEV) console.log(...args);
+  },
+  warn: (...args) => {
+    if (IS_DEV) console.warn(...args);
+  }
+};
+
+const computeBlacklist = () => {
+  const blacklist = [];
+  {% unless request.path == "/pages/store-locator" %}
+    blacklist.push(/69e48264-517d-49c2-bbb2-85a600ff5846/g); // store locator app
+    blacklist.push(/\/apps\/locate/); // store locator app
+  {% endunless %}
+  {% unless request.path == "/pages/contact-us" %}
+    blacklist.push(/freshbots.ai/g); // freshbots app
+  {% endunless %}
+  logger.log('Blacklist:', blacklist); 
+  return blacklist;
+}
+
+// Determine the type of the script based on src
+const determineScriptType = (src) => {
+  const blacklistRegexes = computeBlacklist(); 
+  if (blacklistRegexes.some(regex => regex.test(src))) {
+    logger.log('Blocked script src:', src);
+    return TYPE_BLOCKED;
+  }
+  return null;
+};
+
+// Setup a mutation observer to track DOM insertion
+const app_observer = new MutationObserver(mutations => {
+  for (let i = 0; i < mutations.length; i++) {
+    const { addedNodes } = mutations[i];
+    for (let i = 0; i < addedNodes.length; i++) {
+      const node = addedNodes[i];
+      if (node.nodeType === 1 && node.tagName === 'SCRIPT') {
+        const src = node.src;
+        const matchedType = determineScriptType(src);
+        if (matchedType && !node.hasAttribute(PROCESSED_ATTRIBUTE)) {
+          node.type = matchedType;
+          node.setAttribute(PROCESSED_ATTRIBUTE, "");
+          // Prevent scripts with matched types from executing
+          const beforeScriptExecuteListener = function (event) {
+            if (node.getAttribute('type') === matchedType) {
+              event.preventDefault();
+            }
+            node.removeEventListener('beforescriptexecute', beforeScriptExecuteListener);
+          };
+          node.addEventListener('beforescriptexecute', beforeScriptExecuteListener);
+        }
+      }
+    }
+  }
+});
+
+// Starts the monitoring
+app_observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true
+});
+
+const createElementBackup = document.createElement;
+const originalDescriptors = {
+  src: Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src'),
+  type: Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'type')
+};
+
+document.createElement = function(...args) {
+  if (args[0].toLowerCase() !== 'script') return createElementBackup.bind(document)(...args);
+  const scriptElt = createElementBackup.bind(document)(...args);
+  try {
+    Object.defineProperties(scriptElt, {
+      'src': {
+        ...originalDescriptors.src,
+        set(value) {
+          const matchedType = determineScriptType(value);
+          if (matchedType && !scriptElt.hasAttribute(PROCESSED_ATTRIBUTE)) {
+            originalDescriptors.type.set.call(this, matchedType);
+          }
+          originalDescriptors.src.set.call(this, value);
+        }
+      },
+      'type': {
+        ...originalDescriptors.type,
+        get() {
+          const typeValue = originalDescriptors.type.get.call(this);
+          return determineScriptType(this.src) || typeValue;
+        },
+        set(value) {
+          const typeValue = scriptElt.hasAttribute(PROCESSED_ATTRIBUTE) ? value : (determineScriptType(scriptElt.src) || value);
+          originalDescriptors.type.set.call(this, typeValue);
+        }
+      }
+    });
+    scriptElt.setAttribute = function(name, value) {
+      if ((name === 'type' || name === 'src') && !scriptElt.hasAttribute(PROCESSED_ATTRIBUTE)) scriptElt[name] = value;
+      else HTMLScriptElement.prototype.setAttribute.call(scriptElt, name, value);
+    };
+  } catch (error) {
+    logger.warn(
+      'Unable to prevent script execution for script src', scriptElt.src, '.\n',
+      'A likely cause would be because you are using a third-party browser extension that monkey patches the "document.createElement" function.'
+    );
+  }
+  return scriptElt;
+};
+</script>

@@ -1,0 +1,19 @@
+{% assign productData = product %}
+{% if productData %}
+ {% liquid
+   assign triggerId = productData.selected_or_first_available_variant.id
+   assign handle = productData.handle
+   assign productId = productData.id
+   assign sectionId = section.id
+ %}
+ <div id="qbk-upsurge-offer-{{ productId }}-{{ sectionId }}"></div>
+ <qbk-inject-offer
+   mount-id="qbk-upsurge-offer-{{ productId }}-{{ sectionId }}"
+   handle="{{ handle }}"
+   section-id="{{ sectionId }}"
+   trigger-id="{{ triggerId }}"
+   product-id="{{ productId }}"
+   type="upsurge"
+ >
+ </qbk-inject-offer>
+{% endif %}

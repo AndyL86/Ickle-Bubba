@@ -1,0 +1,749 @@
+<div class='main_product_liquid sb_code' style="display: none">
+  {% for variant in product.variants %}
+  <p class ='sb_{{ variant.id }} sbClass' data-quantity = {{ variant.inventory_quantity }}>{{ variant.inventory_quantity }}</p>
+  {% endfor %}
+</div>
+
+{% capture 'variant_data' %}
+  {% for variant in product.variants %}
+    {{ variant.id | json }}: `{{ variant.inventory_quantity }}`
+    {% unless forloop.last %},{% endunless %}
+  {% endfor %}
+{% endcapture %}
+
+
+{% assign selected_variant_inventory =
+product.selected_or_first_available_variant.inventory_quantity %}
+
+{% assign selected_variant = product.selected_or_first_available_variant.inventory_quantity %}
+{% assign selected_variant_id = product.selected_or_first_available_variant.id %}
+
+<script>
+ // $(document).ready(function(){
+  $(window).on('load', function() {
+    console.log('add code on window load')
+      $('.gf_swatch').each(function(){
+        $(this).addClass('sb_option')
+      })
+     var call_sb_function = '0';
+     $('.gf_column .sb_option').click(function(){
+        console.log('cli gf_column sb_option')
+        call_sb_function = '1';
+        checkVariantChange($)
+    }) 
+     $('.sb_option').click(function(){
+       console.log('cli sb_option '+call_sb_function)
+       if(call_sb_function == '0'){ 
+        checkVariantChange($)
+       }
+    })
+  })
+  $(document).ready(function(){
+    console.log('add code on document ready')
+    setTimeout(function(){
+      $('.gf_swatch').each(function(){
+        $(this).addClass('sb_option')
+      })
+     var call_sb_function = '0';
+     $('.gf_column .sb_option').click(function(){
+        console.log('cli gf_column sb_option')
+        call_sb_function = '1';
+        checkVariantChange($)
+    }) 
+     $('.sb_option').click(function(){
+       console.log('cli sb_option '+call_sb_function)
+       if(call_sb_function == '0'){ 
+        checkVariantChange($)
+       }
+    })
+      },2000)
+  })
+  function checkVariantChange($){
+      setTimeout(function () {
+          //console.log(window.location.href)
+        if (window.location.href.indexOf("?variant=") > -1) {
+          window_url = window.location.href;
+          if (window_url.indexOf("#") > 1) {
+            window_url = window_url.split("#");
+            window_url = window_url[0];
+          }
+          if (window_url.indexOf("?") > 1) {
+            window_url = window_url.split("?");
+            window_url = window_url[1];
+          }
+          if (window_url.indexOf("&") > 1) {
+            window_url = window_url.split("&");
+            window_url = window_url[0];
+          }
+          variant_id = window_url.replace("variant=", "");
+           //console.log('variant_id '+variant_id)
+        } else if (window.location.href.indexOf("&variant=") > -1) {
+          window_url = window.location.href;
+          if (window_url.indexOf("#") > 1) {
+            window_url = window_url.split("#");
+            window_url = window_url[0];
+          }
+          if (window_url.indexOf("&") > 1) {
+            window_url = window_url.split("&");
+            window_url = window_url[1];
+          }
+          variant_id = window_url.replace("variant=", "");
+          //console.log(variant_id)
+        }
+
+        Variant_qty = $(".sb_" + variant_id).attr("data-quantity");
+        console.log("variant_id "+variant_id+ " Variant_qty: " + Variant_qty);
+
+        variant_qty = Variant_qty; //add variant inventory value here
+
+         getVariantWiseInventoryMessage($, variant_qty);
+        //getMetafieldMessage($, variant_id);
+      }, 800);
+    }
+  var loadScriptForstore = function (url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (script.readyState) {
+      script.onreadystatechange = function () {
+        if (script.readyState == "loaded" || script.readyState == "complete") {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else {
+      script.onload = function () {
+        callback();
+      };
+    }
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  };
+
+  if (typeof jQuery === "undefined" || parseFloat(jQuery.fn.jquery) < 1.7) {
+    loadScriptForstore(
+      "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js",
+      function () {
+        jQuery191 = jQuery.noConflict(true);
+        changeVariantOption(jQuery191);
+      }
+    );
+  } else {
+    changeVariantOption(jQuery);
+  }
+
+ // console.log("this is from sb code snippet");
+  var variant_data = { {{ variant_data }} }
+  //console.log('variant_data')
+  //console.log(variant_data)
+//    var variant_data = { 
+  
+//     41980324217005: `Delivery  between<b style="color:grey;"> {Min_lead_days,10}  To {Max_lead_days,30} </b>{COUNTDOWN_TIMER}`
+//     ,
+  
+//     41980324249773: ``
+//     ,
+  
+//     41980324282541: `Delivery to {COUNTRY_NAME} {COUNTRY_FLAG} on <b style="color:blue;"> {Min_lead_days,1} To {Max_lead_days,10} </b> {COUNTDOWN_TIMER} 
+// <img src="img/icon_img32.png" raggable="false" style="vertical-align: middle;"> </img>`
+    
+  
+//  }
+  var default_message = 'not_set';
+  var product_set_specific_msg = 'not_set';
+  
+  function changeVariantOption($) {
+    // var selected_var = $('.block-swatch__item').attr("checked");
+    // console.log("------------------------" + selected_var)
+    $(document).ready(function () {
+      checkEDDMsg = setInterval(function () {
+        //console.log("check div set_specific_msg",set_specific_msg);
+        product_set_specific_msg = set_specific_msg
+        if ($(".deliverydate.sb_delivery .delivery_msg").length) {
+         // console.log("get div");
+            default_message = message;
+        //console.log("default_message initialize",default_message)
+          
+          setTimeout(function () {
+            clearInterval(checkEDDMsg);
+
+            
+            variant_qty = `{{ selected_variant_inventory }}`;
+             getVariantWiseInventoryMessage($, variant_qty);
+            variant_id = `{{ selected_variant_id }}`;
+            console.log('1 variant_id '+variant_id+' variant_qty '+variant_qty)
+            //getMetafieldMessage($, variant_id);
+          }, 1000);
+        }else if(hide_default_message == 1){
+            clearInterval(checkEDDMsg);
+          
+            default_message = message;
+        //console.log("default_message initialize elif",default_message)
+          
+            variant_qty = `{{ selected_variant_inventory }}`;
+             getVariantWiseInventoryMessage($, variant_qty);
+            variant_id = `{{ selected_variant_id }}`;
+          console.log('2 variant_id '+variant_id+' variant_qty '+variant_qty)
+           // getMetafieldMessage($, variant_id);
+        }
+       
+      }, 1000);
+    });
+
+    $(document).on("click", ".sb_option", function () {
+      /*     console.log("Current Variant Id: "+{{ product.selected_variant.id }}); */
+
+      setTimeout(function () {
+        if (window.location.href.indexOf("?variant=") > -1) {
+          window_url = window.location.href;
+          if (window_url.indexOf("#") > 1) {
+            window_url = window_url.split("#");
+            window_url = window_url[0];
+          }
+          if (window_url.indexOf("?") > 1) {
+            window_url = window_url.split("?");
+            window_url = window_url[1];
+          }
+          variant_id = window_url.replace("variant=", "");
+           //console.log('variant_id '+variant_id)
+        } else if (window.location.href.indexOf("&variant=") > -1) {
+          window_url = window.location.href;
+          if (window_url.indexOf("#") > 1) {
+            window_url = window_url.split("#");
+            window_url = window_url[0];
+          }
+          if (window_url.indexOf("&") > 1) {
+            window_url = window_url.split("&");
+            window_url = window_url[1];
+          }
+          variant_id = window_url.replace("variant=", "");
+          //console.log(variant_id)
+        }
+
+        Variant_qty = $(".sb_" + variant_id).attr("data-quantity");
+        console.log("variant_id "+variant_id+ " Variant_qty: " + Variant_qty);
+
+        // console.log({{ current_variant.inventory_quantity }});
+        // console.log({{ current_variant.inventory_quantity }});
+
+        // ------------------------------------------------------------------
+
+        variant_qty = Variant_qty; //add variant inventory value here
+
+        // -----------------------------------------------------------------
+
+        // getVariantWiseInventoryMessage($, variant_qty);
+        //getMetafieldMessage($, variant_id);
+      }, 800);
+    });
+  }
+
+  function getVariantWiseInventoryMessage($, variant_qty) {
+    variant_inventory = 0;
+    console.log('variant_qty '+variant_qty)
+    if(typeof variant_qty == 'undefined'){
+      variant_inventory = 0;
+      variant_qty = 0;
+    }
+    if (variant_qty > 0) {
+      variant_inventory = 1;
+      
+    }
+
+    if(variant_inventory == 0){
+      console.log('remove edd message for variant having 0 quantity')
+      $('.deliverydate.sb_delivery,.add_hidden_delivery').remove();
+    }else{
+      
+    edd_product_qty = variant_inventory;
+    product_have_qty = variant_inventory;
+    //console.log('edd_product_qty '+edd_product_qty)
+   if($(".deliverydate.sb_delivery .delivery_msg").length == 0){
+    getSpecificEDDMsg();
+    //message = edd_message;
+    
+    if(typeof edd_message !== 'undefined' && edd_message != 'not_set' && activate_premium_feature == '1'){
+        message = edd_message
+      }else{
+        message = edd_options.message;     
+      }
+    
+    //console.log("edd_message => " + edd_message);
+    console.log('message => '+message)
+    //console.log("edd_preview_design => " + edd_preview_design);
+   // $('.deliverydate.sb_delivery,.add_hidden_delivery').remove();
+    
+    
+              addEstimatedMessageClass($);
+              displayOnCartPage($);
+    
+
+    //prepareLogicToGetInstockOutOfStockMsgForVriant_sb($);
+    
+    if(( message != 'not_set' && hide_default_message == 0)  || edd_message != 'not_set' ){
+      prepareLogicToGetInstockOutOfStockMsgForVriant_sb($);
+
+      if($('.product-form-product-template').length){
+        console.log('reposition from liquid')
+        $('.product-form-product-template').before($('.sb_delivery'))
+        clearInterval(checkButton)
+    }
+    }else{
+      $('.deliverydate.sb_delivery,.add_hidden_delivery').remove();
+    }
+
+    set_specific_msg = 0;
+    is_set_msg_for_product = "0";
+    is_set_msg_for_product_type = "0";
+    is_set_msg_for_product_tag = "0";
+    is_set_msg_for_product_vendor = "0";
+    is_set_msg_for_all_product = "0";
+    is_set_msg_for_collection = "0";
+    edd_message = 'not_set';
+    }
+  }
+  }
+
+  function getReplaceShortcodeAndGetDelvieryDateArray_sb($) {
+    // Object.keys(get_shortcode_with_value).length;
+    //console.log("getReplaceShortcodeAndGetDelvieryDateArray function");
+    var count = 0;
+    for (a = 0; a < shortcodeList.length; a++) {
+      getMinMaxValue = shortcodeList[a].split(",");
+      checkSHortcode = getMinMaxValue[0].toLowerCase();
+      // var is_numeric = $.isNumeric(getMinMaxValue[1]);
+      var getValueFromShortcode = parseInt(getMinMaxValue[1]);
+      var date = new Date(user_full_date);
+
+      //console.log(getValueFromShortcode);
+      // if(is_numeric && (checkSHortcode.indexOf('min') != -1 || checkSHortcode.indexOf('max') != -1)){
+      if (
+        checkSHortcode.indexOf("min") != -1 ||
+        checkSHortcode.indexOf("max") != -1
+      ) {
+        // / get new min/max value if get week offday /
+        for (k = 0; k <= getValueFromShortcode; k++) {
+          //console.log('');
+          //console.log('getValueFromShortcode '+getValueFromShortcode+' k '+k);
+          getNextDay = k + 1;
+
+          var user_current_day = weekday[date.getDay()];
+          //console.log('user_current_day '+user_current_day);
+          if (checkOffDay($, date)) {
+            getValueFromShortcode = getValueFromShortcode + 1;
+          }
+          var date = new Date(user_full_date);
+          user_date_with_weekoff_cutoff = date.setDate(
+            date.getDate() + getNextDay
+          );
+          user_date_with_weekoff_cutoff = date.toString("dd" / "MM" / "yyyy");
+          // console.log('getNextDay '+getNextDay+'getValueFromShortcode '+getValueFromShortcode+' user_date_with_weekoff_cutoff '+user_date_with_weekoff_cutoff);
+        }
+
+        // / get min/max delviery date
+        var date = new Date(user_full_date);
+        user_date_with_weekoff_cutoff = date.setDate(
+          date.getDate() + getValueFromShortcode
+        );
+        user_date_with_weekoff_cutoff = date.toString("dd" / "MM" / "yyyy");
+        //console.log('actual date  '+user_date_with_weekoff_cutoff+' getValueFromShortcode '+getValueFromShortcode);
+        // console.log('getValueFromShortcode '+getValueFromShortcode);
+
+        // / check cutoff value and chanage the date accrdongly /
+        if (check_cutoff == "less" && check_currentDay_is_weekoff == 0) {
+          //console.log('cutoff time less');
+          user_date_with_weekoff_cutoff = date.setDate(date.getDate() + 1);
+          user_date_with_weekoff_cutoff = date.toString("dd" / "MM" / "yyyy");
+          //console.log('user_full_date '+user_date_with_weekoff_cutoff);
+        }
+
+        // / after cutoff check the date is week off day or not /
+        check_last_weekday = false;
+        while (!check_last_weekday) {
+          if (checkOffDay($, user_date_with_weekoff_cutoff)) {
+            user_date_with_weekoff_cutoff = date.setDate(date.getDate() + 1);
+            user_date_with_weekoff_cutoff = date.toString("dd" / "MM" / "yyyy");
+          } else {
+            check_last_weekday = true;
+            break;
+          }
+        }
+
+        //console.log('add last day '+user_date_with_weekoff_cutoff);
+        user_date_with_weekoff_cutoff = apply_date_formate(
+          $,
+          date_format,
+          user_date_with_weekoff_cutoff
+        );
+        get_shortcode_with_value["value" + count] =
+          user_date_with_weekoff_cutoff;
+      } else {
+        // / get incorrect shortcode /
+        get_shortcode_with_value["value" + count] =
+          "{" + shortcodeList[a] + "}";
+      }
+
+      //console.log("shortcodeList[a]"+shortcodeList[a]);
+      message_lowercase = message_lowercase.replace(
+        "{" + shortcodeList[a] + "}",
+        "value" + count
+      );
+
+      // / replace short code in actual message /
+      message = message.replace(
+        "{" + shortcodeList[a].toLowerCase() + "}",
+        "value" + count
+      );
+      message = message.replace(
+        "{" + shortcodeList[a].toUpperCase() + "}",
+        "value" + count
+      );
+      capitalizeSHortcode = shortcodeList[a]
+        .toLowerCase()
+        .replace(/\b[a-z]/g, function (letter) {
+          return letter.toUpperCase();
+        });
+
+      message = message.replace(
+        "{" + capitalizeSHortcode + "}",
+        "value" + count
+      );
+      console.log("actual message " + message);
+      count++;
+    }
+  }
+
+  function getShortCodeFromMessage_sb($) {
+    var rxp = /{([^}]+)}/g,
+      curMatch;
+          //console.log(message,"---message"); 
+          // break;
+    message_lowercase = message.toLowerCase();
+
+    shortcodeList = [];
+    while ((curMatch = rxp.exec(message_lowercase))) {
+      lowercase_shortcode = curMatch[1];
+      shortcodeList.push(lowercase_shortcode.toLowerCase());
+    }
+    // console.log(shortcodeList);
+  }
+
+  function getDeliveryDateANDapplyTOCartPage_sb() {
+    getCartDate = "";
+    //console.log(get_shortcode_with_value)
+    $.each(get_shortcode_with_value, function (key, value) {
+      //console.log(key);
+      if (getCartDate == "") {
+        getCartDate = value;
+      } else {
+        eval(edd_options.additional_script);
+        if (
+          cartDateSign != "" &&
+          (showOnlyDateOnCartpage == 1 || cart_msg_apperance == "date")
+        ) {
+          getCartDate = getCartDate + " " + cartDateSign + " " + value;
+        } else {
+          getCartDate = getCartDate + " - " + value;
+        }
+      }
+
+      // /* add hightlight color */
+      value = "<span class=hightlight_date>" + value + "</span>";
+      message = message.replace(key, value);
+      //console.log("message => " + message);
+    });
+
+    
+    $(".delivery_msg").html(message);
+    $(".delivery_msg").attr("contenteditable", false);
+
+    $(".hightlight_date").css({
+      color: msg_preview.highlight_clr,
+    });
+    // /* add changes*/
+          
+    setTimeout(function(){
+      $("body").append('<style>.deliverydate.sb_delivery {opacity: 1!important;}</style>');
+    },1000)
+
+    $(".deliverydate  img").css({
+      background: "transparent",
+      opacity: "1",
+      margin: "0px 4px 3px",
+      "vertical-align": "middle",
+      display: "inline-block",
+      height: "auto",
+    });
+    //console.log('getCartDate '+getCartDate);
+  }
+
+  function setDelvieryDateANDapplyTOCartPage_sb() {
+    /* add delviery date on detail page */
+    /* add changes*/
+    //message = message.replaceAll('div','span');
+
+    eval(edd_options.additional_script);
+    // /* add cart filed value */
+    if (display_on_other_page == "1" && activate_premium_feature == "1") {
+      cartvalue = "";
+      cartvalue = $(".deliverydate .delivery_msg").text();
+
+      if (showOnlyDateOnCartpage == 1 || cart_msg_apperance == "date") {
+        if (getCartDate != "") {
+          passcartvalue = getCartDate;
+        } else {
+          passcartvalue = cartvalue;
+        }
+      } else {
+        passcartvalue = cartvalue;
+      }
+      if (cartAdditionalMessage != "") {
+        passcartvalue = passcartvalue + " " + cartAdditionalMessage;
+      }
+      $(".add_hidden_delivery").val(passcartvalue);
+    }
+  }
+
+  function addPreViewDesgin_sb() {
+    //console.log('specific_preview_design.preview_design '+specific_preview_design.preview_design)
+    if (specific_preview_design == null) {
+      applyDefaultPrevieDesign();
+    } else if (
+      specific_preview_design == "not_set" ||
+      specific_preview_design.preview_design == "not_set"
+    ) {
+      applyDefaultPrevieDesign();
+    } else {
+      msg_preview = {
+        bold: specific_preview_design.font_weight,
+        italic: specific_preview_design.font_style,
+        text_align: specific_preview_design.text_align,
+        br_clr: specific_preview_design.border,
+        text_clr: specific_preview_design.color,
+        background: specific_preview_design.background,
+        background_option: specific_preview_design.background_option,
+        font_size: specific_preview_design.font_size + "px",
+        text_transfrom: specific_preview_design.text_transform,
+        icon: msg_preview.icon,
+        background_clr: specific_preview_design.background,
+        highlight_clr: specific_preview_design.highlight_color,
+      };
+    }
+
+    //console.log(msg_preview);
+    if (
+      msg_preview.icon != 0 &&
+      $.type(msg_preview.icon) != "undefined" &&
+      $(".delivery_icon img").length == 0
+    ) {
+      icon_src =
+        "https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/admin/" +
+        msg_preview.icon;
+      $(".deliverydate .delivery_icon").append(
+        "<img src=" +
+          icon_src +
+          ' style="vertical-align: middle;margin: 0px 4px 3px;">'
+      );
+    }
+
+    if (
+      typeof msg_preview.background_option !== undefined &&
+      msg_preview.background_option.indexOf("image") != -1
+    ) {
+      msg_preview.background =
+        "https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/admin/" +
+        msg_preview.background;
+      $(".deliverydate").css({
+        "background-image": "url('" + msg_preview.background + "')",
+      });
+      $(".deliverydate").css({
+        "background-repeat": "no-repeat",
+        "background-position": "center",
+        "background-size": " cover",
+      });
+    } else {
+      $(".deliverydate").css({
+        background: msg_preview.background_clr,
+      });
+    }
+
+    $(".deliverydate").css({
+      color: msg_preview.text_clr,
+      border: "1px solid " + msg_preview.br_clr,
+      "font-weight": msg_preview.bold,
+      "font-style": msg_preview.italic,
+      "text-transform": msg_preview.text_transfrom,
+      "text-align": msg_preview.text_align,
+      "font-size": msg_preview.font_size,
+      padding: "10px",
+      overflow: "hidden",
+      display: "inline-block ",
+      width: "100%",
+      "margin-top": "10px",
+      "margin-bottom": "10px",
+    });
+  }
+  
+function getMetafieldMessage($, variant_id) {
+ // console.log('function called');
+  if(default_message != 'not_set'){
+    message = default_message;
+    //console.log('default_message ',default_message);
+  }
+  
+  variant_metadata = variant_data[variant_id];
+  if(variant_metadata != '' && variant_metadata != null){
+    message = variant_metadata;
+  }   
+  
+  // if(typeof edd_message !== 'undefined' && edd_message != 'not_set' && activate_premium_feature == '1'){
+  //   message = edd_message
+  // }else{
+  //   message = edd_options.message;     
+  // }
+    
+    // console.log("edd_message => " + edd_message);
+    //console.log('message => '+message)
+    //console.log("edd_preview_design => " + edd_preview_design);
+    $('.deliverydate.sb_delivery,.add_hidden_delivery').remove();
+    
+    if($(".deliverydate.sb_delivery .delivery_msg").length == 0){
+      addEstimatedMessageClass($);
+      displayOnCartPage($);
+    }
+
+    //prepareLogicToGetInstockOutOfStockMsgForVriant_sb($);
+
+  show_variant_message =  0;
+  //console.log("--------product_set_specific_msg",product_set_specific_msg)
+  if(( message != 'not_set' && hide_default_message == 0)  || edd_message != 'not_set' ){
+    // if(( message != 'not_set' && hide_default_message == 0 || product_set_specific_msg == '1' || product_set_specific_msg == 1)  || edd_message != 'not_set' ){
+    // if(hide_default_message == 1 || hide_default_message == '1'){
+    //   if(product_set_specific_msg == '1'){
+    //     show_variant_message = 1;
+    //   }
+    // }else{
+    //   show_variant_message = 1;
+    // }
+    // if(( message != 'not_set') || edd_message != 'not_set' && show_variant_message == 1){
+      prepareLogicToGetInstockOutOfStockMsgForVriant_sb($);
+    }else{
+      $('.deliverydate.sb_delivery,.add_hidden_delivery').remove();
+    }
+
+    set_specific_msg = 0;
+    is_set_msg_for_product = "0";
+    is_set_msg_for_product_type = "0";
+    is_set_msg_for_product_tag = "0";
+    is_set_msg_for_product_vendor = "0";
+    is_set_msg_for_all_product = "0";
+    is_set_msg_for_collection = "0";
+    edd_message = 'not_set';
+}
+
+    function addPremiumPlanFeture_sb($){
+        checkShortcode = message.toLowerCase();
+        if(checkShortcode.indexOf('countdown') != -1) {
+          addCountDownTimer_sb($);
+        }
+        if(checkShortcode.indexOf('country') != -1){
+          message = add_country_flag_name(message);
+        }
+
+        // if(display_on_other_page == '1' ){
+        //   displayOnCartPage($);
+        // }
+        //console.log(message);
+    }
+    function addCountDownTimer_sb($){
+
+    message = message.replaceAll('{countdown_timer}','<span class="count_down_timer hightlight_date"></span>');
+    message = message.replaceAll('{Countdown_Timer}','<span class="count_down_timer hightlight_date"></span>');
+    message = message.replaceAll('{COUNTDOWN_TIMER}','<span class="count_down_timer hightlight_date"></span>');
+
+    defaultTime= store_full_dateTime.replace(' AM','');
+    defaultTime= store_full_dateTime.replace(' PM','');
+    defaultTime= defaultTime.split(' ');
+    defaultTime = defaultTime[0];
+    var date = new Date(defaultTime);
+    date.setDate(date.getDate() + 1);
+    defaultTime = (date.getMonth()+1)+'/'+date.getDate()+'/'+date.getFullYear();
+    defaultTime = defaultTime+' 12:00 AM';
+    count_down_interval = setInterval(function() {
+
+      sb_distance = getCutdownDate($,defaultTime,count_down_interval);
+
+      var sb_days = Math.floor(sb_distance / (1000 * 60 * 60 * 24));
+      var sb_hours = Math.floor((sb_distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var sb_minutes = Math.floor((sb_distance % (1000 * 60 * 60)) / (1000 * 60));
+      var sb_seconds = Math.floor((sb_distance % (1000 * 60)) / 1000);
+      
+      switch (countdownFormate){
+        case '1':  var timer = sb_days +' '+getTimerText('Days')+' '+sb_hours+' '+getTimerText('Hours')+' '+sb_minutes+' '+getTimerText('Minutes')+' '+sb_seconds+' '+getTimerText('Seconds')+' '; break;
+        case '2':  var timer = sb_hours+' '+getTimerText('Hours')+' '+sb_minutes+' '+getTimerText('Minutes')+' '+sb_seconds+' '+getTimerText('Seconds')+' '; break;
+        case '3':  var timer = sb_hours+' '+getTimerText('Hrs')+' '+sb_minutes+' '+getTimerText('Mins')+' '+sb_seconds+' '+getTimerText('Secs')+' '; break;
+        case '4':  var timer = sb_hours+' '+getTimerText('Hrs')+' '+sb_minutes+' '+getTimerText('Mins')+' '; break;
+        case '5':  var timer = sb_hours+getTimerText('H')+' : '+sb_minutes+getTimerText('M')+' : '+sb_seconds+getTimerText('S')+' '; break;
+        case '6':  var timer = sb_days +'<sup>'+getTimerText('days')+'</sup> / '+sb_hours+'<sup>'+getTimerText('hours')+'</sup> / '+ sb_minutes + '<sup>'+getTimerText('minutes')+'</sup> / ' + sb_seconds+'<sup>'+getTimerText('seconds')+'</sup>'; break;
+        default: var timer = sb_hours+' '+getTimerText('Hrs')+' '+sb_minutes+' '+getTimerText('Mins')+' '+sb_seconds+' '+getTimerText('Secs')+' '; break;
+      }
+      if(shopnamefull=='costa-pasticceria.myshopify.com'){
+        var timer = sb_hours+' Ore '+sb_minutes+' minuti ';
+      }
+      if(shopnamefull=='littlegreentown.myshopify.com'){
+        var timer = sb_hours+' saat '+sb_minutes+' Dakika '+sb_seconds+' Saniye';
+      }
+      if(shopnamefull=='pvgrafiklab.myshopify.com'){
+        var timer = sb_hours+' Ore '+sb_minutes+' minuti '+sb_seconds+' Secondo';
+      }
+      $('.count_down_timer').html(timer );
+      //console.log('call from counter change cart data')
+      setDelvieryDateANDapplyTOCartPage_sb($)
+
+    }, 1000);
+  }
+
+
+   function getCutdownDate_sb($,defaultTime,count_down_interval){
+      if(cutofftime_enable == 1 ){
+        countDownDate =  store_full_dateTime;
+      }else{
+        countDownDate = defaultTime;
+      }
+      var now = new Date().getTime();
+      countDownDate = new Date(countDownDate).getTime();
+      var distance = countDownDate - now;
+      if( distance < 0 ){
+        var setubridge_coundown_coockie = ggetSbScriptCookieLcke("setubridge_coundown_coockie");
+
+        if (setubridge_coundown_coockie == ""){
+
+          /* setCookie();
+        $('.deliverydate ,.add_hidden_delivery').remove();    
+        $.getScript("https://estimated-delivery-days.setubridgeapps.com/estimated-delivery-days/app/edd-proxy/main/optimized_script_delivery.js");*/
+        }
+        if(cutofftime_enable == 1 ){
+          var storeTime = new Date(store_full_dateTime);
+          storeTime.setDate(storeTime.getDate() + 1);
+          countDownDate = storeTime;
+        }else{
+          var date = new Date(defaultTime);
+          date.setDate(date.getDate() + 1);
+          countDownDate = defaultTime;          
+        }
+        countDownDate = new Date(countDownDate).getTime();
+        distance = countDownDate - now;
+      }
+      return distance;
+    }
+
+  function prepareLogicToGetInstockOutOfStockMsgForVriant_sb($) {
+    getShortCodeFromMessage_sb();
+    addMultipleIcon();
+    addPremiumPlanFeture_sb($);
+    getReplaceShortcodeAndGetDelvieryDateArrayIcklebubba($);
+    //getReplaceShortcodeAndGetDelvieryDateArray_sb();
+    getDeliveryDateANDapplyTOCartPage_sb();
+    setDelvieryDateANDapplyTOCartPage_sb();
+    addPreViewDesgin_sb();
+  }
+</script>

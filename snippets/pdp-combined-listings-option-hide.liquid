@@ -1,0 +1,10 @@
+{% if product %}
+  {% assign option_to_hide = product.metafields.custom.combined_listings_option_to_hide %}
+  {% if option_to_hide != blank %}
+    <style>
+      div[data-name="{{ option_to_hide | escape }}"] {
+        display: none !important;
+      }
+    </style>
+  {% endif %}
+{% endif %}

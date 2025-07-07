@@ -1,0 +1,483 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ settings.text_direction }}">
+  <head>
+<script>
+  let live2 = 'https://dashboard.icklebubba.com';
+  {% if customer %}
+      // Function to check customer status by email
+      const checkCustomerByEmailHead = async(email) =>{
+        try {
+          const response = await fetch(`${live2}/api/get-company-status`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({email:email})
+          }); 
+          const data = await response.json();
+          globalCustomer = data.object ;
+          return response.status
+        } catch (error) {
+          console.log('Error fetching customer data:', error);
+        }
+      }
+        checkCustomerByEmailHead({{customer.email | json }}).then((data)=> {
+          if(data === 401){
+            let pageLocation = window.location.pathname;
+            if(pageLocation.includes('membership-form')){
+              window.location.replace('/pages/membership-page');
+            }
+          }else{
+            let pageLocation = window.location.pathname;
+            if(pageLocation.includes('membership-page')){
+              window.location.replace('/pages/membership-form');
+            }
+          }
+        })
+  {% else %}
+    let pageLocation = window.location.pathname;
+    if(pageLocation.includes('membership-page')){
+      window.location.replace('/account');
+    }
+  {% endif %}
+</script>
+    <link rel="preload" href="{{ 'vendor-scripts-v2.js' | asset_url | split: '?' | first }}" as="script">
+    {% render 'app-blocking' %}
+    {% render 'dynamic-lazyload' %}
+    {% render 'generic-preloads' %}
+    {% render 'pdp-combined-listings-option-hide' %}
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_button }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preload" as="script" href="{{ 'theme.js' | asset_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://ajax.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.gstatic.com">
+    <link rel="alternate" hreflang="en-gb" href="{{ canonical_url}}">
+    <link rel="alternate" hreflang="en-ga" href="{{ canonical_url | replace: 'https://', 'https://ie.' }}">
+    <link rel="alternate" hreflang="en-au" href="{{ canonical_url | replace: 'https://', 'https://au.' }}">
+
+    <script src="{{ 'jquery-3.7.1.js' | asset_url }}"></script>
+
+    <script>
+      var Shopify = Shopify || {};
+      Shopify.money_format = "{{ shop.money_format }}";
+    </script>
+
+    {%- if settings.favicon != blank -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png">
+    {%- endif -%}
+
+    {%- render 'seo-title' -%}
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    {%- render 'social-meta-tags' -%}
+
+    {%- if shop.enabled_currencies.size > 1 -%}
+      <link
+        rel="stylesheet"
+        href="{{ 'country-flags.css' | asset_url | split: '?' | first }}"
+        media="print"
+        onload="this.media='all';this.onload=null;"
+      >
+      <noscript><link rel="stylesheet" href="{{ 'country-flags.css' | asset_url | split: '?' | first }}"></noscript>
+    {%- endif -%}
+
+    {%- render 'font-face' -%}
+    {{ 'theme.css' | asset_url | stylesheet_tag: preload: true }}
+    {%- render 'css-variables' -%}
+
+    {%- liquid
+      assign enableSuperScript = false
+      unless shop.money_format contains 'money' or shop.money_format contains '.'
+        if settings.superscript_decimals
+          if shop.money_format contains '{{amount}}' or shop.money_format contains '{{ amount }}'
+            assign enableSuperScript = true
+          elsif shop.money_format contains '{{amount_with_comma_separator}}' or shop.money_format contains '{{ amount_with_comma_separator }}'
+            assign enableSuperScript = true
+          endif
+        endif
+      endunless
+    -%}
+
+    <script src="{{ 'jquery-2.2.js' | asset_url }}"></script>
+
+    <script>
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+
+      window.theme = window.theme || {};
+      theme.routes = {
+        home: "{{ routes.root_url }}",
+        collections: "{{ routes.collections_url }}",
+        cart: "{{ routes.cart_url | append: '.js' }}",
+        cartPage: "{{ routes.cart_url }}",
+        cartAdd: "{{ routes.cart_add_url | append: '.js' }}",
+        cartChange: "{{ routes.cart_change_url | append: '.js' }}",
+        search: "{{ routes.search_url }}"
+      };
+
+      theme.strings = {
+        soldOut: {{ 'products.product.sold_out' | t | json }},
+        unavailable: {{ 'products.product.unavailable' | t | json }},
+        inStockLabel: {{ 'products.product.in_stock_label' | t | json }},
+        oneStockLabel: {{ 'products.product.stock_label.one' | t: count: '[count]' | json }},
+        otherStockLabel: {{ 'products.product.stock_label.other' | t: count: '[count]' | json }},
+        willNotShipUntil: {{ 'products.product.will_not_ship_until' | t: date: '[date]' | json }},
+        willBeInStockAfter: {{ 'products.product.will_be_in_stock_after' | t: date: '[date]' | json }},
+        waitingForStock: {{ 'products.product.waiting_for_stock' | t | json }},
+        savePrice: {{ 'products.general.save_html' | t: saved_amount: '[saved_amount]' | json }},
+        cartEmpty: {{ 'cart.general.empty' | t | json }},
+        cartTermsConfirmation: {{ 'cart.general.terms_confirm' | t | json }},
+        searchCollections: {{ 'general.search.collections' | t | json }},
+        searchPages: {{ 'general.search.pages' | t | json }},
+        searchArticles: {{ 'general.search.articles' | t | json }},
+        maxQuantity: {{ 'cart.general.max_quantity' | t: quantity: '[quantity]', title: '[title]' | json }}
+      };
+      theme.settings = {
+        cartType: {{ settings.cart_type | json }},
+        isCustomerTemplate: {% if request.page_type contains 'customers/' %}true{% else %}false{% endif %},
+        moneyFormat: {{ shop.money_format | json }},
+        saveType: {{ settings.product_save_type | json }},
+        productImageSize: {{ settings.product_grid_image_size | json }},
+        productImageCover: {{ settings.product_grid_image_fill }},
+        predictiveSearch: {{ settings.predictive_search_enabled }},
+        predictiveSearchType: {{ settings.search_type | json }},
+        superScriptSetting: {{ settings.superscript_decimals }},
+        superScriptPrice: {{ enableSuperScript }},
+        quickView: {{ settings.quick_shop_enable }},
+        quickAdd: {{ settings.quick_add_enable }},
+        themeName: 'Expanse',
+        themeVersion: "4.2.0"
+      };
+    </script>
+
+    <!-- 
+    <script>
+      // this is so that product galleries can capture the event and be loaded quickly
+      (function() {
+        // Create global flag
+        window.flickityReady = false;
+        
+        // Function to emit custom event and set flag when Flickity is ready
+        const emitFlickityReady = () => {
+          if (typeof Flickity !== 'undefined') {
+            window.flickityReady = true;
+            document.dispatchEvent(new CustomEvent('flickityLoaded'));
+          } else {
+            // Keep checking until Flickity is defined
+            setTimeout(emitFlickityReady, 50);
+          }
+        };
+      
+        // Load the vendor script
+        const script = document.createElement('script');
+        script.src = "{{ 'vendor-scripts-v2.js' | asset_url | split: '?' | first }}";
+        script.async = true;
+        script.onload = emitFlickityReady;
+        
+        // Insert the script as early as possible
+        const firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(script, firstScript);
+      })();
+    </script> -->
+    <script src="{{ 'vendor-scripts-v2.js' | asset_url }}"></script>
+    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+    {{ content_for_header }}
+<!-- dataLayer listener -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function subscribeCookieListener(dataLayer) {
+    // Step to process information already existing in the datalayer
+    dataLayer.forEach(processDatalayerEvent)
+
+    // Set-up a "listener"
+    const originalPush = dataLayer.push;
+    dataLayer.push = function() {
+        originalPush.apply(dataLayer, arguments);
+        Array.from(arguments).forEach(processDatalayerEvent);
+    };
+  
+  }
+subscribeCookieListener(window.dataLayer);
+
+function processDatalayerEvent(event){
+  if(event.event === "bre.cookie"){
+    Shopify.analytics.publish("bre.cookie",event);
+  }
+}
+ 
+</script>
+<!-- EXPONEA start -->
+<script>
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        var cookie = undefined;
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                cookie = c.substring(name.length, c.length);
+                break;
+            }
+        }
+        cookie = decodeURIComponent(cookie);
+        cookie = cookie.split('?')[0];
+        return cookie;
+    }
+
+    function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function hasUserAcceptedCookies() {
+        var consentCookie = getCookie('userConsent');
+        return consentCookie === "true";
+    }
+
+    function loadExponeaScript() {
+        !function(e,n,t,i,o,r){function c(e){if("number"!=typeof e)return e;var n=new Date;return new Date(n.getTime()+1e3*e)}var a=4e3,s="xnpe_async_hide";function p(e){return e.reduce((function(e,n){return e[n]=function(){e._.push([n.toString(),arguments])},e}),{_:[]})}function m(e,n,t){var i=t.createElement(n);i.src=e;var o=t.getElementsByTagName(n)[0];return o.parentNode.insertBefore(i,o),i}function u(e){return"[object Date]"===Object.prototype.toString.call(e)}r.target=r.target||"https://api.exponea.com",r.file_path=r.file_path||r.target+"/js/exponea.min.js",o[n]=p(["anonymize","initialize","identify","update","track","trackLink","trackEnhancedEcommerce","getHtml","showHtml","showBanner","showWebLayer","ping","getAbTest","loadDependency","getRecommendation","reloadWebLayers"]),o[n].notifications=p(["isAvailable","isSubscribed","subscribe","unsubscribe"]),o[n]["snippetVersion"]="v2.3.0",function(e,n,t){e[n]["_"+t]={},e[n]["_"+t].nowFn=Date.now,e[n]["_"+t].snippetStartTime=e[n]["_"+t].nowFn()}(o,n,"performance"),function(e,n,t,i,o,r){e[o]={sdk:e[i],sdkObjectName:i,skipExperiments:!!t.new_experiments,sign:t.token+"/"+(r.exec(n.cookie)||["","new"])[1],path:t.target}}(o,e,r,n,i,RegExp("__exponea_etc__"+"=([\\w-]+)")),function(e,n,t){m(e.file_path,n,t)}(r,t,e),function(e,n,t,i,o,r,p){if(e.new_experiments){!0===e.new_experiments&&(e.new_experiments={});var f,l=e.new_experiments.hide_class||s,_=e.new_experiments.timeout||a,d=encodeURIComponent(r.location.href.split("#")[0]);e.cookies&&e.cookies.expires&&("number"==typeof e.cookies.expires||u(e.cookies.expires)?f=c(e.cookies.expires):e.cookies.expires.tracking&&("number"==typeof e.cookies.expires.tracking||u(e.cookies.expires.tracking))&&(f=c(e.cookies.expires.tracking))),f&&f<new Date&&(f=void 0);var x=e.target+"/webxp/"+n+"/"+r[t].sign+"/modifications.min.js?http-referer="+d+"&timeout="+_+"ms"+(f?"&cookie-expires="+Math.floor(f.getTime()/1e3):"");"sync"===e.new_experiments.mode&&r.localStorage.getItem("__exponea__sync_modifications__")?function(e,n,t,i,o){t[o][n]="<"+n+' src="'+e+'"></'+n+">",i.writeln(t[o][n]),i.writeln("<"+n+">!"+o+".init && document.writeln("+o+"."+n+'.replace("/'+n+'/", "/'+n+'-async/").replace("><", " async><"))</'+n+">")}(x,n,r,p,t):function(e,n,t,i,o,r,c,a){r.documentElement.classList.add(e);var s=m(t,i,r);function p(){o[a].init||m(t.replace("/"+i+"/","/"+i+"-async/"),i,r)}function u(){r.documentElement.classList.remove(e)}s.onload=p,s.onerror=p,o.setTimeout(u,n),o[c]._revealPage=u}(l,_,x,n,r,p,o,t)}}(r,t,i,0,n,o,e),function(e,n,t){e[n].start=function(i){i&&Object.keys(i).forEach((function(e){return t[e]=i[e]})),e[n].initialize(t)}}(o,n,r)}(document,"exponea","script","webxpClient",window,{
+            "target": "https://api.uk.exponea.com",
+            "token": "7d160d4e-a2f7-11ed-b328-ee4a50baaa43",
+            "data_layer": true,
+        });
+
+        var customer = {};
+        var cart_id = getCookie('cart'); //default Shopify cookie name is "cart"
+        if (cart_id) customer.cart_id = cart_id;
+        {% if customer and customer.email %}
+        customer.email_id = {{ customer.email | json }};
+        customer.shopify_id = {{ customer.id | json }};
+        {% endif %}
+
+        exponea.start({
+            "customer": customer,
+            "track": {
+                "visits": true,
+                {% if shop %}"default_properties": { "domain": {{ shop.permanent_domain | json }} } {% endif %}
+            }
+        });
+    }
+
+    if (hasUserAcceptedCookies()) {
+        loadExponeaScript();
+    } else {
+        document.addEventListener("visitorConsentCollected", function(event) {
+            if (event.detail.marketingAllowed && event.detail.analyticsAllowed && event.detail.preferencesAllowed) {
+                setCookie('userConsent', 'true', 365); // Save consent in a cookie for 1 year
+                loadExponeaScript();
+            }
+        });
+    }
+</script>
+<!-- EXPONEA end -->
+
+
+    <!-- Google Tag Manager -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-NQVF4RD');
+    </script>
+    <!-- End Google Tag Manager -->
+    <!-- TrustBox script -->
+    <!--
+      <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" defer></script>
+    -->
+    <script type="text/javascript" src="{{ 'tp.widget.bootstrap.min.js' | asset_url }}" defer></script>
+    <!-- End TrustBox script -->
+
+    {%- if request.page_type contains 'customers/' -%}
+      <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    <!--
+      <style>
+        .async-hide { opacity: 0 !important}
+      </style>
+      <script>
+        (function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+        h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+        (a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+        })(window,document.documentElement,'async-hide','dataLayer',500,
+        {'GTM-XXXXXX':true});
+      </script>
+    -->
+
+    {% if request.design_mode %}
+      <script src="https://api.archetypethemes.co/design-mode.js" defer="defer"></script>
+    {% endif %}
+    <!-- Gem_Page_Header_Script -->
+    {% render 'gem-app-header-scripts' %}
+    <!-- End_Gem_Page_Header_Script -->
+    {% render 'qikify-apps' %}
+    <style media="print" onload="this.media='all';this.onload=null" id="fonts-style">
+      @import url(//fonts.googleapis.com/css?family=Abril+Fatface|Amaranth|Anton|Arvo|Architects+Daughter|Berkshire+Swash|Bevan|Bitter|B612+Mono:400,700|Caveat|Chewy|Chilanka|Comfortaa|Concert+One|Courgette|Domine|Frijole|Fjalla+One|Josefin+Slab|Gloria+Hallelujah|Hepta+Slab:400,500,600,700|Josefin+Sans:400,600,700|Kaushan+Script|Knewave|Lexend+Mega|Libre+Baskerville|Lobster|Montserrat|Mansalva|Old+Standard+TT|Oleo+Script|Open+Sans|Orbitron:400,500,700|Oswald|PT+Sans|Pacifico|Passion+One|Permanent+Marker|Playfair+Display|Poppins|Prata|PT+Mono|Quicksand:400,500,600,700|Raleway|Righteous|Roboto|Rubik|Roboto:400,500,700|Satisfy|Shrikhand|Ubuntu|Work+Sans);
+    </style>
+    
+
+    <!-- sb code -->
+    <script>
+      var check_edd_data_from_liquid = 'test';
+    </script>
+    {% render 'edd_read_data_from_liquid_new' %}
+    {% render 'edd_extension_file' %}
+    {% render 'sb_code_change_instock_wise_edd' %}
+
+    <!-- sb code -->
+    <script>
+      var userId = your_user_id || null; // Replace your_user_id with your own if available.
+      window.hj('identify', userId, {
+          // Add your own custom attributes here. Some EXAMPLES:
+          // 'Signed up': '2019—06-20Z', // Signup date in ISO-8601 format.
+          // 'Last purchase category': 'Electronics', // Send strings with quotes around them.
+          // 'Total purchases': 15, // Send numbers without quotes.
+          // 'Last purchase date': '2019-06-20Z', // Send dates in ISO-8601 format.
+          // 'Last refund date': null, // Send null when no value exists for a user.
+      });
+    </script>
+    <script
+src="https://www.paypal.com/sdk/js?client-id=AUR6XE9v1CuUkEsKIHQGvEvC0sJqLm8jntUe-G4a7R3unG2pm1HgXXShyBUZDsGFi9igXdiu0x2CnA-K&currency=GBP&components=messages"
+data-namespace="PayPalSDK" defer>
+</script>
+    <style>
+      @font-face { 
+          font-family: Exceptional-Regular;
+          src: url('https://cdn.shopify.com/s/files/1/0680/1820/9052/files/Exceptional-Regular.otf?v=1742476702'); 
+      } 
+    </style>
+
+  {{ 'membership.css' | asset_url | stylesheet_tag: preload: true }}
+  </head>
+
+  <body
+    class="template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}{% if request.path == '/challenge' %} template-challange{% endif %}"
+    data-transitions="{{ settings.animate_page_transitions }}"
+    data-button_style="{{ settings.button_style }}"
+    data-edges="{{ settings.roundness }}"
+    data-type_header_capitalize="{{ settings.type_header_capitalize }}"
+    data-swatch_style="{{ settings.swatch_style }}"
+    data-grid-style="{{ settings.product_grid_style }}"
+  >
+    <!-- Google Tag Manager (noscript) -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-NQVF4RD"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      ></iframe
+    ></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <script src="https://cdn.attn.tv/icklebubba-gb/dtag.js" defer></script>
+
+    {% if settings.animate_page_transitions %}
+      <script type="text/javascript">
+        window.setTimeout(function() { document.body.className += " loaded"; }, 25);
+      </script>
+    {% endif %}
+
+    <a class="in-page-link visually-hidden skip-link" href="#MainContent">
+      {{- 'general.accessibility.skip_to_content' | t -}}
+    </a>
+
+    <div id="PageContainer" class="page-container">
+      <div class="transition-body">
+        {%- sections 'header-group' -%}
+        {%- sections 'popup-group' -%}
+
+        <main class="main-content" id="MainContent">
+          {{ content_for_layout }}
+        </main>
+
+        {% if request.page_type == 'product' %}
+          
+        {% endif %}
+        
+      </div>
+    </div>
+
+    
+    <div id="ProductModals"></div>
+
+    
+    <template id="naturalImageMarkup">
+      <div class="image-wrap" style="height: 0;">
+        <img class="grid-product__image" width height src srcset loading="lazy" alt>
+      </div>
+    </template>
+    <template id="fixedRatioImageMarkup">
+      <div class="grid__image-ratio">
+        <img width height src srcset loading="lazy" alt>
+      </div>
+    </template>
+    <template id="articleImageMarkup">
+      <img width height src loading="lazy">
+    </template>
+    <!-- Gem_Page_Footer_Script -->
+    {%- liquid
+      assign gpTemplateSuffix = template.suffix
+      assign arrSplitSuffix = gpTemplateSuffix | split: '-'
+      if gpTemplateSuffix contains 'gem-' and gpTemplateSuffix contains '-template' and arrSplitSuffix.size == 3
+        assign isV6GpTemplate = true
+      endif
+      assign gpShopMeta = shop.metafields.gempages
+      if gpShopMeta
+        if gpShopMeta['productV6-default'] == 'true' and request.page_type == 'product'
+          assign isProductDefault = true
+        endif
+        if gpShopMeta['collectionV6-default'] == 'true' and request.page_type == 'collection'
+          assign isCollectionDefault = true
+        endif
+        if gpShopMeta['indexV6-default'] == 'true' and request.page_type == 'index'
+          assign isIndexDefault = true
+        endif
+        if isProductDefault or isCollectionDefault or isIndexDefault or isPreviewV6
+          assign isV6GpTemplate = true
+        endif
+      endif
+    %}
+    {% if isV6GpTemplate %}
+      
+    {% endif %}
+    <!-- End_Gem_Page_Footer_Script -->
+
+    <style>
+      .gempage-editing .transition-body {
+        opacity:1 !important;
+      }
+    </style>
+    
+    <script>
+      var script_loaded=!1;function loadJSscripts(){if(!script_loaded){observer.disconnect(),script_loaded=!0,document.querySelectorAll("iframe.lazy").forEach(t=>{datasrc=t.dataset.src,null!=datasrc&&(t.src=datasrc)});var t=document.getElementsByTagName("script");for(i=0;i<t.length;i++)if(null!==t[i].getAttribute("data-src")&&(t[i].setAttribute("src",t[i].getAttribute("data-src")),delete t[i].dataset.src),"text/lazyload"==t[i].getAttribute("type")){for(var e=document.createElement("script"),a=0;a<t[i].attributes.length;a++){var n=t[i].attributes[a];e.setAttribute(n.name,n.value)}e.type="text/javascript",e.innerHTML=t[i].innerHTML,t[i].parentNode.removeChild(t[i]),t[i].parentNode.insertBefore(e,t[i])}var r=document.getElementsByTagName("link");for(i=0;i<r.length;i++)null!==r[i].getAttribute("data-href")&&(r[i].setAttribute("href",r[i].getAttribute("data-href")),delete r[i].dataset.href);document.dispatchEvent(new CustomEvent("asyncLazyLoad"))}}var activityEvents=["mousedown","mousemove","keydown","scroll","touchstart","click","keypress","touchmove"];activityEvents.forEach(function(t){window.addEventListener(t,loadJSscripts,!1)}),window.addEventListener?window.addEventListener("load",function(){},!1):window.attachEvent?window.attachEvent("onload",function(){}):window.onload=(t=>{});
+    </script>
+    
+
+    
+    
+    
+
+{% unless samita-custom contains 'Liquid error'   %}
+
+{% endunless %}
+
+    
+  </body>
+</html>

@@ -1,0 +1,5 @@
+<p style="color: #fff;font-size:14px;">Sign up for an EXTRA 5% OFF! <s>{{ current_variant.price | money }}</s>&nbsp;<span><b>{% assign original_price = current_variant.price %}
+            {% assign discount = original_price | times: 0.05 %}
+            {% assign discounted_price = original_price | minus: discount %}
+            {{ discounted_price | money }}</b></span>
+        </p>
